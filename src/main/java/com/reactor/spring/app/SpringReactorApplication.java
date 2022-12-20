@@ -8,6 +8,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @SpringBootApplication
 public class SpringReactorApplication implements CommandLineRunner {
 
@@ -22,9 +25,17 @@ public class SpringReactorApplication implements CommandLineRunner {
 
 //		Flux<String> nombres = Flux.just("Andres", "Felipe", "Angie", "Liceth")
 //				.doOnNext(System.out::println);
+	List<String> users = new ArrayList<String>();
+	users.add("Andres Hernandez");
+	users.add("Felipe Caicedo");
+	users.add("Angie Rodriguez");
+	users.add("lionel Messi");
+	users.add("Rodrigo DePaul");
+	users.add("Kun Aguero");
 
-	 Flux<Usuario> nombres = Flux.just("Andres Hernandez", "Felipe Caicedo", "Angie Rodriguez", "Liceth Ramos", "lionel Messi", "Rodrigo DePaul", "Kun Aguero")
-			 .map(nomb -> new Usuario(nomb.split(" ")[0].toUpperCase(), nomb.split(" ")[1].toUpperCase()))// Corta el nombre con espacios y devuelve una array
+	 Flux<String> nombres = Flux.fromIterable(users); /*Flux.just("Andres Hernandez", "Felipe Caicedo", "Angie Rodriguez", "Liceth Ramos", "lionel Messi", "Rodrigo DePaul", "Kun Aguero");*/
+
+			 Flux<Usuario> usuarios = nombres.map(nomb -> new Usuario(nomb.split(" ")[0].toUpperCase(), nomb.split(" ")[1].toUpperCase()))// Corta el nombre con espacios y devuelve una array
 			 .filter(nomb -> nomb.getNombre().equalsIgnoreCase("lionel"))
 			 .doOnNext( nomb ->  {
 				 if(nomb == null){
@@ -41,7 +52,7 @@ public class SpringReactorApplication implements CommandLineRunner {
 
 //	 nombres.subscribe(log::info); //Se resume el codigo y queda mas limpio
 //	            ó
-	 nombres.subscribe(nomb -> log.info(nomb.toString()),
+	 usuarios.subscribe(nomb -> log.info(nomb.toString()),
 			 error -> log.error(error.getMessage()),
 			 new Runnable() {
 				 @Override
