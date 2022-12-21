@@ -23,8 +23,23 @@ public class SpringReactorApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-		ejemploToString();
+		ejemploCollectList();
     }
+
+	public void ejemploCollectList() throws Exception {
+
+		List<Usuario> users = new ArrayList<>();
+		users.add(new Usuario("Andres", "Hernandez"));
+		users.add(new Usuario("Angie", "Rodriguez"));
+		users.add(new Usuario("Luna", "Hernandez"));
+		users.add(new Usuario("Salome", "Rodriguez"));
+
+		Flux.fromIterable(users)
+				.collectList()
+				.subscribe( lista -> {
+					lista.forEach( item -> log.info(item.toString()));
+				});
+	}
 
 	public void ejemploToString() throws Exception {
 
