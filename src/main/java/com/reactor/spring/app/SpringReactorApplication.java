@@ -25,11 +25,23 @@ public class SpringReactorApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-		ejemploUsuarioComentariosFlatMap();
+		ejemploUsuarioZipWith();
     }
 
+	public void ejemploUsuarioZipWith(){
+		Mono<Usuario> usuarioMono = Mono.fromCallable(() -> new Usuario("Felipe", "Hernandez"));
+		Mono<Comentarios> comentariosUsuarioMono = Mono.fromCallable(() -> {
+			Comentarios comentarios = new Comentarios();
+			comentarios.addComentario("Hola soy Felipe");
+			comentarios.addComentario("Hola soy Andres");
+			comentarios.addComentario("Argentina campeona del mundo");
+			return comentarios;
+		});
 
-	public void ejemploUsuarioComentariosFlatMap(){
+		Mono<UsuarioComentarios> usuarioConComentarios = usuarioMono.zipWith(comentariosUsuarioMono, (usuarios, comentarios) -> new UsuarioComentarios(usuarios, comentarios));
+				usuarioConComentarios.subscribe( uc -> log.info(uc.toString()));
+	}
+	public void ejemploUsuarioComentariosFlatMap() {
 		Mono<Usuario> usuarioMono = Mono.fromCallable(() -> new Usuario("Felipe", "Hernandez"));
 		Mono<Comentarios> comentariosUsuarioMono = Mono.fromCallable(() -> {
 			Comentarios comentarios = new Comentarios();
