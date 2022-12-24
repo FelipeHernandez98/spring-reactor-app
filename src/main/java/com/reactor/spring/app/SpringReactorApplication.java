@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +26,25 @@ public class SpringReactorApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-		ejemploUsuarioRangos();
+		ejemploDelayElements();
     }
+
+	public void ejemploDelayElements() throws InterruptedException {
+		Flux<Integer> rango = Flux.range(1, 12)
+				.delayElements(Duration.ofSeconds(1))
+				.doOnNext(i -> log.info(i.toString()));
+
+		rango.subscribe();
+
+		Thread.sleep(13000); // Detiene la ejecucón pra poder visualizar las operaciones que esten en segundo plano ejecutandose
+	}
+	public void ejemploInterval(){
+		Flux<Integer> rango = Flux.range(1, 12);
+		Flux<Long> delay = Flux.interval(Duration.ofSeconds(1));
+		rango.zipWith(delay, (ra, de) -> ra)
+				.doOnNext(i -> log.info(i.toString()))
+				.blockLast();
+	}
 
 	public void ejemploUsuarioRangos(){
 
