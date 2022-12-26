@@ -34,10 +34,15 @@ public class SpringReactorApplication implements CommandLineRunner {
 
 		CountDownLatch latch = new CountDownLatch(1);
 		Flux.interval(Duration.ofSeconds(1))
-				.doOnTerminate(() -> latch.countDown())
-				.map( i -> "Hola" +i )
-				.doOnNext(s -> log.info(s))
-				.subscribe();
+				.doOnTerminate(latch::countDown)
+				.flatMap( i -> {
+					if(i >= 5){
+						return Flux.error(new InterruptedException("Solo hasta 5!"));
+					}
+					return Flux.just(i);
+				})
+				.map( i -> "Hola " +i )
+				.subscribe(s -> log.info(s), e -> log.error(e.getMessage()));
 		latch.await();
 	}
 	public void ejemploDelayElements() throws InterruptedException {
