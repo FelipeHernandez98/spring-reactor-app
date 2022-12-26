@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 @SpringBootApplication
 public class SpringReactorApplication implements CommandLineRunner {
@@ -26,9 +27,19 @@ public class SpringReactorApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-		ejemploDelayElements();
+		ejemploIntervalInfinito();
     }
 
+	public void ejemploIntervalInfinito() throws InterruptedException {
+
+		CountDownLatch latch = new CountDownLatch(1);
+		Flux.interval(Duration.ofSeconds(1))
+				.doOnTerminate(() -> latch.countDown())
+				.map( i -> "Hola" +i )
+				.doOnNext(s -> log.info(s))
+				.subscribe();
+		latch.await();
+	}
 	public void ejemploDelayElements() throws InterruptedException {
 		Flux<Integer> rango = Flux.range(1, 12)
 				.delayElements(Duration.ofSeconds(1))
