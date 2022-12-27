@@ -3,6 +3,8 @@ package com.reactor.spring.app;
 import com.reactor.spring.app.models.Comentarios;
 import com.reactor.spring.app.models.Usuario;
 import com.reactor.spring.app.models.UsuarioComentarios;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -29,8 +31,48 @@ public class SpringReactorApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-		ejemploIntervalDesdeCreate();
+		ejemploContraPresion();
     }
+
+	public void ejemploContraPresion(){
+		Flux.range(1, 10)
+				.log()
+				//.limitRate(2) Es una manera reducida de hacer lo del Subscriber, pide dos devuelve 2 y luego pide de neuvo 2
+				.subscribe(new Subscriber<Integer>() { // Otra manera de suscribir y modificar
+
+					private Subscription s;
+
+					private Integer limite = 2;
+
+					private Integer consumido = 0;
+
+					@Override
+					public void onSubscribe(Subscription s) {
+						this.s = s;
+						s.request(limite);
+					}
+
+					@Override
+					public void onNext(Integer integer) {
+						log.info(integer.toString());
+						consumido++;
+						if (consumido == limite){
+							consumido = 0;
+							s.request(limite);
+						}
+					}
+
+					@Override
+					public void onError(Throwable t) {
+
+					}
+
+					@Override
+					public void onComplete() {
+
+					}
+				});
+	}
 
 	public void ejemploIntervalDesdeCreate(){
 
@@ -45,6 +87,10 @@ public class SpringReactorApplication implements CommandLineRunner {
 					if( contador == 10){
 						timer.cancel();
 						emitter.complete();
+					}
+					if( contador == 5){
+						timer.cancel();
+						emitter.error(new InterruptedException("Error, se ha detenido el flux en 5!"));
 					}
 				}
 			}, 1000, 1000);
